@@ -1,79 +1,228 @@
-#include <stdio.h>
-void print_board(char board[3][3]);
-int check_win(char board[3][3], char player);
+//imported library-functions and function-prototype declaration 
+#include<stdio.h>
+#include<conio.h> 
+#include<string.h> 
+int mrk(int,char); 
+void vw(int);
+void chkscr(char, char); 
+int rslt(int, int); 
+void add(char);
+//global-scope variable declaration in the program 
+int p,sc1,sc2,mv,pl,rst;
+char s,s1,s2,c[3][3];
+//main calling function 
+int main()
+{
+	int plr,chc;
+	//gameplay label 
+	gmplay:
+		mv=1;
+		memset(c, '\0', sizeof(c)); 
+		sc1=0,sc2=0;
+		//plyrchc label 
+		plyrchc:
+			printf("\n Enter starter player# \n( enter '1' or '2' ) : "); 
+			scanf("%d",&plr);
+		pl=plr;
+		if(plr!=1 && plr!=2)
+		{
+			printf("\n Player-no. choice is invalid !! please try again...\n\n New Game...\n\n");
+			goto plyrchc;
+		}
+		else
+		{	//sgnchc label 
+			sgnchc:
+				printf("\n Enter sign-choice for player %d ,\n(enter '1-> X' or '2-> O' or'3-> x' or'4-> o'): ",plr);
+	 			scanf("%d",&chc);
+			if(chc!=1 && chc!=2 && chc!=3 && chc!=4)
+			{
+				printf("\n Sign-choice is invalid !! please try again...\n\n New Game...\n\n");
+				goto sgnchc;
+			}
+			else
+			{	//assigning signs to players 
+				if(chc==1 && plr==1 || chc==2 && plr==2)
+					s1='X',s2='O';
+				else if(chc==2 && plr==1 || chc==1 && plr==2) 
+					s1='O',s2='X';
+				else if(chc==3 && plr==1 || chc==4 && plr==2) 
+					s1='x',s2='o';
+				else if(chc==4 && plr==1 || chc==3 && plr==2) 
+					s1='o',s2='x';
+			}	
+			printf("\n Game Starts	");
+			do
+			{	//checkerboard-gameplay
+			printf("\n 1 | 2 |  3 \n 4 |5 | 6 \n 7 | 8 |  9 \n"); 
+			printf("\n player# %d enter position choice to make move- no. %d: ",pl,mv);
+			scanf("%d",&p); 
+			if(pl==1)
+				s=s1;
+			else
+				s=s2;
+			//mark on checkerboard at nth position
+			mrk(p,s);
+			//view checkerboard after marking at nth position
+			vw(mv);
+			//increment move no. for move by next player
+			mv++; 
+			if(pl%2==1)
+				pl=2;
+			else
+				pl=1;
+			}while(mv<10);
+			//proceed game till 9 moves
+			chkscr(s1,s2); //main-function calls to check score 
+			rslt(sc1,sc2); //main-function calls to display game- results
+			
+			//asks the user to continue / exit the game
+			printf("\n\n Do you wanna play another game ? Press 0 to play...");
+			scanf("%d",&rst); 
+			if(rst==0)
+			{
+				printf("\n\n~~~~~~~~~~~~~~~~~~~~~~<New Game>~~~~~~~~~~~~~~~~~~~~~~~~\n\n"); 
+				goto gmplay;//returns to gameplay for new game
+			}
+			else
+			{
+				printf("\n\n Thanks for playing...");
+				getch();
+			}
+		}
+}//end of main function
 
-int main() {
-    char board[3][3] = { 
-        {'-', '-', '-'},
-        {'-', '-', '-'},
-        {'-', '-', '-'}
-    };
-    int turn = 0; 
-    int row, col; 
+//function to mark symbol on checkerboard 
+int mrk(int p, char s)
+{
+	int i,j,k;
+	//check for invalid position no. 
+	if(p<0 || p>10)
+	{
+		printf("\n Invalid position no. enetered.. Input Again !!!\n"); 
+		mv--;//decrement move no.
+		//re-assign move to previous player 
+		if(pl%2==0)
+			pl=1;
+		else
+			pl=2;
+		return;
+	}
+	else
+	{ //set row-no. 'i' and level-increment 'k' 
+		if(p>0 && p<4)
+			i=0,k=1;
+		else if(p>3 && p<7)
+			i=1,k=3;
+		else if(p>6 && p<10) 
+			i=2,k=5;
 
-    printf("Welcome to Tic-Tac-Toe!\n\n");
-    print_board(board);
+		for(j=0;j<3;j++)//traverse checkerboard by column
+		{
+			if(p==(i+j+k))//check if pos=row+column+leve
+				if(c[i][j]!='\0')//cell emptiness check
+				{
+					printf("\n Position %d is already marked with %c.. Don't Cheat !!",p,c[i][j]); 
+					mv--; //decrement move no.
+					//re-assign move to previous player 
+					if(pl%2==0)
+						pl=1;
+					else
+						pl=2;
+					break;
+				}
+				//if all checks turn out to be okay cell is marked with sign of current player under present move-no.
+				else
+					c[i][j]=s;
+		}
+	}
+}//end of mark function
 
-    while (1) { 
-        char player = (turn % 2 == 0) ? 'X' : 'O'; 
+//function to view gameplay-checkerboard 
+void vw(int mv)
+{
+	int l,m;
+	printf("\n ~~~ CheckBoard is looking like after move no. %d~~~\n\n",mv);
+	//traversing to view gameplay-checkerboard 
+	for(l=0;l<3;l++) //row traverser
+	{
+		for(m=0;m<3;m++) //column traverser
+		{
+			if(c[l][m]!='\0') //empty-cell check 
+				printf(" %c ",c[l][m]);
+			else
+				printf(" ! "); //print "!" in an empty cell
+				
+			if(m!=2)
+				printf(" | "); // "|" in between 2 columns
+		}
+		printf("\n");
+	}
+}// end of view function
 
-        printf("Player %c's turn.\n", player);
-        printf("Enter row (0-2): ");
-        scanf("%d", &row);
-        printf("Enter column (0-2): ");
-        scanf("%d", &col);
+//function to check score of individual player 
+void chkscr(char s1, char s2)
+{ 
+	int x,y; 
+	char sgn;
+	for(x=0;x<3;x++) // row traverser for(y=0;y<3;y++) // column traverser
+	{
+		sgn=c[x][y]; // stores immediate sign of current cell 
+		if(sgn!='\0') // cell-emptiness check
+		{//checking for all possible continuous line pattern 
+			if(x==0 && y==0) //check for pattern from 1st cell
+			{
+				if(sgn==c[1][1] && sgn==c[2][2])//1 diagonally
+ 					add(sgn);
+				else if(sgn==c[0][1] && sgn==c[0][2])//2 horizontally 
+					add(sgn);
+				else if(sgn==c[1][0] && sgn==c[2][0])//3 vertically 
+					add(sgn);
+			}
 
-        if (board[row][col] == '-') {
-            board[row][col] = player; 
-            print_board(board);
+		if(x==0 && y==1) //check for pattern from 2nd cell 
+			if(sgn==c[1][1] && sgn==c[2][1])//4 vertically
+				add(sgn);
 
-            if (check_win(board, player)) { 
-                printf("Player %c wins!\n", player);
-                break; 
-            }
+		if(x==0 && y==2) //check for pattern from 3rd cell
+		{
+			if(sgn==c[1][1] && sgn==c[2][0])//5 diagonally 
+				add(sgn);
+			else if(sgn==c[1][2] &&sgn==c[2][2])//6 vertically 
+				add(sgn);
+		}
+		
+		if(x==1 && y==0) //check for pattern from 4th cell 
+			if(sgn==c[1][1] && sgn==c[1][2])//7 horizontally
+				add(sgn);
+				
+		if(x==2 && y==0) //check for pattern from 7th cell 
+			if(sgn==c[2][1] && sgn==c[2][2])//8 horizontally
+				add(sgn);
+		}
+	}
+	//printing of scores
+	printf("\n\t <->-<->-<->-<->-<->-<->-<->-<->\n\t Present Scores of the Game are	");
+	printf("\n\t Score of player_1 is : %d pts\n\t Score of	player_2 is : %d pts ",sc1,sc2);
+}//end of chkscr function
 
-            turn++; 
-        }
-        else {
-            printf("That spot is already taken. Try again.\n");
-        }
+// function to increment scores 
+void add(char sgn)
+{
+	if(s1==sgn) //increments score of player1 if sign is of player1 
+		sc1++;
+	else //increments score of player2 if sign is of player2 
+		sc2++;
+}// end of adder function
 
-        if (turn == 9) { 
-            printf("It's a tie!\n");
-            break; 
-        }
-    }
-
-    return 0;
-}
-
-void print_board(char board[3][3]) {
-    printf("\n");
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            printf("%c ", board[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
-int check_win(char board[3][3], char player) {
-    for (int i = 0; i < 3; i++) {
-        // Check rows
-        if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
-            return 1;
-        }
-        if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
-            return 1;
-        }
-    }
- 
-    if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
-        return 1;
-    }
-    if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
-        return 1;
-    }
-    return 0;
+// function to print final result of the game 
+int rslt(int sc1, int sc2)
+{
+	printf("\n\t <->-<->-<->-<->-<->-<->-<->-<->\n\t Final Results of the Game are:");
+	if(sc1>sc2) // if score of player1 > player2
+		printf("\n\t Winner is Player_1 with points %d",sc1); 
+	else if(sc2>sc1) // if score of player2 > player1
+		printf("\n\t Winner is Player_2 with points %d",sc2);
+	else // if score of plyr1 = plyr2
+		printf("\n\t This Game is a TIE between player_1 & 2");
+	printf("\n\n\t <->-<->-<->-<->-<->-<->-<->-<->\n\n");
 }
